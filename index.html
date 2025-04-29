@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Miner</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+        
+        * {
+            font-family: 'Press Start 2P', cursive;
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            background-color: #121212;
+            background-image: url('background.jpg');
+            background-size: cover;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding: 20px;
+            font-size: 12px;
+        }
+        
+        .welcome-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            text-align: center;
+            gap: 20px;
+        }
+        
+        .profile-image {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #4CAF50;
+        }
+        
+        .btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px;
+            margin: 5px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 10px;
+            transition: all 0.3s;
+            width: 100%;
+            max-width: 300px;
+        }
+        
+        .btn:hover {
+            background-color: #45a049;
+            transform: translateY(-2px);
+        }
+        
+        .btn:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+        }
+        
+        .btn-secondary {
+            background-color: #0088cc;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #006699;
+        }
+        
+        .game-container {
+            display: none;
+            flex-direction: column;
+            min-height: 100vh;
+            gap: 15px;
+        }
+        
+        .footer {
+            padding: 15px;
+            background-color: rgba(30, 30, 30, 0.9);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            border-radius: 10px;
+            margin-top: auto;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        #coin {
+            width: 120px;
+            height: 120px;
+            margin: 10px auto;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        
+        #coin img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        #coin:active {
+            transform: scale(0.95);
+        }
+        
+        .stats {
+            background-color: rgba(45, 45, 45, 0.8);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .upgrade-item {
+            background-color: rgba(45, 45, 45, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .upgrade-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .upgrade-desc {
+            font-size: 8px;
+            color: #aaa;
+            margin-bottom: 10px;
+        }
+        
+        .collect-section {
+            background-color: rgba(30, 30, 30, 0.9);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 10px;
+        }
+        
+        .referral-section {
+            background-color: rgba(45, 45, 45, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+        }
+        
+        .referral-link {
+            word-break: break-all;
+            background-color: rgba(30, 30, 30, 0.9);
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-size: 8px;
+        }
+        
+        .friends-list {
+            margin-top: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+        
+        .friend-item {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            border-bottom: 1px solid #444;
+            gap: 10px;
+        }
+        
+        .friend-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .friend-info {
+            flex-grow: 1;
+        }
+        
+        .friend-name {
+            font-size: 10px;
+        }
+        
+        .friend-date {
+            font-size: 8px;
+            color: #aaa;
+        }
+        
+        .friend-bonus {
+            color: #4CAF50;
+            font-size: 10px;
+        }
+        
+        .no-friends {
+            text-align: center;
+            padding: 20px;
+            font-size: 10px;
+            color: #aaa;
+        }
+        
+        /* Мини-игра */
+        #minigame-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+        
+        #minigame-area {
+            width: 100%;
+            height: 70%;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .falling-coin {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background-image: url('coin.png');
+            background-size: contain;
+            cursor: pointer;
+        }
+        
+        #minigame-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        #timer {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        #minigame-score {
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Экран приветствия -->
+    <div class="welcome-screen" id="welcomeScreen">
+        <img id="profileImage" class="profile-image" src="" alt="Profile Photo">
+        <div id="welcomeMessage">Добро пожаловать в Crypto Miner!</div>
+        <button class="btn btn-secondary" id="connectWalletBtn">Подключить TON кошелёк</button>
+        <button class="btn" id="startGameBtn">Начать игру →</button>
+    </div>
+
+    <!-- Основной игровой интерфейс -->
+    <div class="game-container" id="gameContainer">
+        <div id="main" class="tab-content active">
+            <div id="coin"><img src="coin.png" alt="Монета"></div>
+            <button id="daily-btn" class="btn">Ежедневный челлендж (50x)</button>
+            
+            <div class="stats">
+                <div>Автокликер: <span id="autoclickerStatus">Неактивен</span></div>
+                <div>Накоплено: <span id="offlineCoins">0</span> токенов</div>
+            </div>
+            
+            <button id="collectBtn" class="btn" style="display:none;">Собрать токены</button>
+        </div>
+        
+        <div id="upgrades" class="tab-content">
+            <div class="upgrade-item">
+                <div class="upgrade-header">
+                    <h3>Автокликер</h3>
+                    <div>2,500 токенов</div>
+                </div>
+                <div class="upgrade-desc">
+                    Кликает автоматически каждые 2 секунды, даже когда вы оффлайн!
+                </div>
+                <button id="buyAutoclicker" class="btn">Купить улучшение</button>
+            </div>
+        </div>
+        
+        <div id="friends" class="tab-content">
+            <div class="referral-section">
+                <div class="stats">
+                    <div>Приглашено друзей: <span id="friendsCount">0</span></div>
+                    <div>Заработано: <span id="referralEarnings">0</span> токенов</div>
+                </div>
+                
+                <div class="referral-link" id="referralLink"></div>
+                <button id="copyBtn" class="btn">Копировать ссылку</button>
+                <button id="shareBtn" class="btn btn-secondary">Поделиться в Telegram</button>
+                
+                <h3>Ваши рефералы:</h3>
+                <div class="friends-list" id="friendsList">
+                    <div class="no-friends" id="noFriends">
+                        Вы пока никого не пригласили.<br>
+                        Приглашайте друзей и получайте бонусы!<br>
+                        За каждого друга: +1,000 токенов!
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="wallet" class="tab-content">
+            <div id="walletInfo">
+                <p>Статус: <span id="walletStatus">Не подключен</span></p>
+                <p>Адрес: <span id="walletAddress">-</span></p>
+                <p>Баланс: <span id="tonBalance">0</span> TON</p>
+            </div>
+            <button id="walletBtn" class="btn">Подключить кошелёк</button>
+            <button id="withdrawBtn" class="btn" disabled>Вывести токены</button>
+        </div>
+        
+        <div class="footer">
+            <div class="balance">Баланс: <span id="balance">0</span> токенов</div>
+            <div class="tabs">
+                <button class="btn" data-tab="main">Главная</button>
+                <button class="btn" data-tab="upgrades">Улучшения</button>
+                <button class="btn" data-tab="friends">Друзья</button>
+                <button class="btn" data-tab="wallet">Кошелёк</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Мини-игра -->
+    <div id="minigame-container">
+        <div id="minigame-header">
+            <div id="timer">30</div>
+            <div id="minigame-score">Счет: 0</div>
+        </div>
+        <div id="minigame-area"></div>
+        <button id="closeMinigame" class="btn" style="margin-top: 20px;">Закрыть</button>
+    </div>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tonconnect/sdk@latest/dist/tonconnect-sdk.min.js"></script>
+    <script>
+        // Инициализация Telegram Web App
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        
+        // Данные пользователя
+        const user = tg.initDataUnsafe.user || {};
+        const userId = user.id;
+        const botUsername = tg.initDataUnsafe.bot?.username;
+        
+        // Игровые данные
+        let gameData = {
+            balance: 0,
+            autoclicker: false,
+            offlineCoins: 0,
+            lastUpdate: Date.now(),
+            referrals: {
+                count: 0,
+                earnings: 0,
+                friends: []
+            },
+            lastDailyChallenge: null
+        };
+        
+        // Мини-игра
+        let minigameActive = false;
+        let minigameScore = 0;
+        let minigameTimeLeft = 30;
+        let minigameInterval;
+        
+        // Элементы интерфейса
+        const welcomeScreen = document.getElementById('welcomeScreen');
+        const gameContainer = document.getElementById('gameContainer');
+        const profileImage = document.getElementById('profileImage');
+        const welcomeMessage = document.getElementById('welcomeMessage');
+        const balanceElement = document.getElementById('balance');
+        const autoclickerStatus = document.getElementById('autoclickerStatus');
+        const offlineCoinsElement = document.getElementById('offlineCoins');
+        const collectBtn = document.getElementById('collectBtn');
+        const buyAutoclickerBtn = document.getElementById('buyAutoclicker');
+        const referralLink = document.getElementById('referralLink');
+        const friendsList = document.getElementById('friendsList');
+        const noFriends = document.getElementById('noFriends');
+        const friendsCount = document.getElementById('friendsCount');
+        const referralEarnings = document.getElementById('referralEarnings');
+        const walletStatus = document.getElementById('walletStatus');
+        const walletAddress = document.getElementById('walletAddress');
+        const tonBalance = document.getElementById('tonBalance');
+        const minigameContainer = document.getElementById('minigame-container');
+        const timerElement = document.getElementById('timer');
+        const minigameScoreElement = document.getElementById('minigame-score');
+        const minigameArea = document.getElementById('minigame-area');
+        
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', () => {
+            loadGameData();
+            initUserProfile();
+            setupEventListeners();
+            checkOfflineProgress();
+            updateUI();
+        });
+        
+        // Загрузка данных игры
+        function loadGameData() {
+            const savedData = localStorage.getItem('cryptoClickerData');
+            if (savedData) {
+                gameData = JSON.parse(savedData);
+                
+                // Проверяем сколько времени прошло с последнего обновления
+                const timeDiff = Date.now() - gameData.lastUpdate;
+                if (gameData.autoclicker && timeDiff > 2000) {
+                    const clicks = Math.floor(timeDiff / 2000);
+                    gameData.offlineCoins += clicks;
+                }
+            }
+        }
+        
+        // Сохранение данных игры
+        function saveGameData() {
+            gameData.lastUpdate = Date.now();
+            localStorage.setItem('cryptoClickerData', JSON.stringify(gameData));
+        }
+        
+        // Инициализация профиля пользователя
+        function initUserProfile() {
+            if (user.photo_url) {
+                profileImage.src = user.photo_url;
+            } else {
+                profileImage.src = 'default-avatar.png';
+            }
+            
+            if (user.first_name) {
+                welcomeMessage.textContent = `Привет, ${user.first_name}! Готов к заработку?`;
+            }
+            
+            generateReferralLink();
+        }
+        
+        // Генерация реферальной ссылки
+        function generateReferralLink() {
+            if (!userId || !botUsername) return;
+            
+            const channelUsername = 'ваш_канал'; // Замените на username вашего канала
+            const refLink = `https://t.me/${channelUsername}?start=ref_${userId}`;
+            
+            referralLink.textContent = refLink;
+            window.refLink = refLink;
+        }
+        
+        // Проверка оффлайн-прогресса
+        function checkOfflineProgress() {
+            if (gameData.autoclicker && gameData.offlineCoins > 0) {
+                collectBtn.style.display = 'block';
+            }
+        }
+        
+        // Настройка обработчиков событий
+        function setupEventListeners() {
+            // Кнопка "Начать игру"
+            document.getElementById('startGameBtn').addEventListener('click', () => {
+                welcomeScreen.style.display = 'none';
+                gameContainer.style.display = 'flex';
+            });
+            
+            // Клик по монете
+            document.getElementById('coin').addEventListener('click', () => {
+                gameData.balance++;
+                updateUI();
+                saveGameData();
+            });
+            
+            // Покупка автокликера
+            buyAutoclickerBtn.addEventListener('click', () => {
+                if (gameData.balance >= 2500 && !gameData.autoclicker) {
+                    gameData.balance -= 2500;
+                    gameData.autoclicker = true;
+                    startAutoclicker();
+                    updateUI();
+                    saveGameData();
+                    tg.showAlert('Автокликер активирован! Теперь вы будете получать токены даже когда не в игре.');
+                }
+            });
+            
+            // Сбор оффлайн-токенов
+            collectBtn.addEventListener('click', () => {
+                gameData.balance += gameData.offlineCoins;
+                gameData.offlineCoins = 0;
+                collectBtn.style.display = 'none';
+                updateUI();
+                saveGameData();
+            });
+            
+            // Кнопка копирования ссылки
+            document.getElementById('copyBtn').addEventListener('click', () => {
+                navigator.clipboard.writeText(window.refLink);
+                tg.showAlert('Ссылка скопирована!');
+            });
+            
+            // Кнопка "Поделиться в Telegram"
+            document.getElementById('shareBtn').addEventListener('click', () => {
+                tg.openTelegramLink(window.refLink);
+            });
+            
+            // Подключение кошелька
+            document.getElementById('walletBtn').addEventListener('click', connectWallet);
+            
+            // Ежедневный челлендж
+            document.getElementById('daily-btn').addEventListener('click', startDailyChallenge);
+            
+            // Закрытие мини-игры
+            document.getElementById('closeMinigame').addEventListener('click', endMinigame);
+            
+            // Переключение вкладок
+            document.querySelectorAll('[data-tab]').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    document.getElementById(tab.dataset.tab).classList.add('active');
+                });
+            });
+        }
+        
+        // Запуск автокликера
+        function startAutoclicker() {
+            setInterval(() => {
+                if (document.visibilityState === 'visible') {
+                    gameData.balance++;
+                } else {
+                    gameData.offlineCoins++;
+                }
+                updateUI();
+                saveGameData();
+            }, 2000);
+        }
+        
+        // Подключение TON кошелька
+        async function connectWallet() {
+            try {
+                const connector = new TonConnect.TonConnect({
+                    manifestUrl: window.location.origin + '/tonconnect-manifest.json'
+                });
+                
+                const wallets = await connector.getWallets();
+                const wallet = wallets[0];
+                
+                await connector.connect({ wallet });
+                
+                const walletAddr = connector.account.address;
+                gameData.walletAddress = walletAddr;
+                
+                updateWalletInfo(walletAddr);
+                tg.showAlert(`Кошелёк подключен: ${walletAddr}`);
+            } catch (error) {
+                console.error('Ошибка подключения:', error);
+                tg.showAlert('Не удалось подключить кошелёк');
+            }
+        }
+        
+        // Обновление информации о кошельке
+        function updateWalletInfo(address) {
+            walletStatus.textContent = 'Подключен';
+            walletAddress.textContent = `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
+            document.getElementById('walletBtn').textContent = 'Кошелёк подключен';
+            document.getElementById('withdrawBtn').disabled = false;
+            
+            // Здесь должен быть запрос к API для получения баланса
+            // Для примера используем заглушку
+            tonBalance.textContent = '0.00';
+        }
+        
+        // Запуск ежедневного челленджа
+        function startDailyChallenge() {
+            const now = new Date();
+            
+            // Проверяем, проходил ли уже челлендж сегодня
+            if (gameData.lastDailyChallenge && isSameDay(new Date(gameData.lastDailyChallenge), now)) {
+                tg.showAlert('Вы уже проходили челлендж сегодня! Приходите завтра.');
+                return;
+            }
+            
+            startMinigame();
+        }
+        
+        // Запуск мини-игры
+        function startMinigame() {
+            minigameActive = true;
+            minigameScore = 0;
+            minigameTimeLeft = 30;
+            minigameArea.innerHTML = '';
+            
+            timerElement.textContent = minigameTimeLeft;
+            minigameScoreElement.textContent = `Счет: ${minigameScore}`;
+            minigameContainer.style.display = 'flex';
+            
+            // Таймер
+            minigameInterval = setInterval(() => {
+                minigameTimeLeft--;
+                timerElement.textContent = minigameTimeLeft;
+                
+                if (minigameTimeLeft <= 0) {
+                    endMinigame();
+                }
+            }, 1000);
+            
+            // Генерация монет
+            generateFallingCoin();
+        }
+        
+        // Генерация падающих монет
+        function generateFallingCoin() {
+            if (!minigameActive) return;
+            
+            const coin = document.createElement('div');
+            coin.className = 'falling-coin';
+            const xPos = Math.random() * (minigameArea.offsetWidth - 40);
+            coin.style.left = `${xPos}px`;
+            coin.style.top = '0px';
+            
+            coin.addEventListener('click', () => {
+                minigameScore += 50;
+                minigameScoreElement.textContent = `Счет: ${minigameScore}`;
+                minigameArea.removeChild(coin);
+            });
+            
+            minigameArea.appendChild(coin);
+            
+            // Анимация падения
+            let fallInterval = setInterval(() => {
+                const currentTop = parseInt(coin.style.top) || 0;
+                coin.style.top = `${currentTop + 5}px`;
+                
+                if (currentTop > minigameArea.offsetHeight) {
+                    clearInterval(fallInterval);
+                    if (minigameArea.contains(coin)) {
+                        minigameArea.removeChild(coin);
+                    }
+                }
+            }, 50);
+            
+            // Генерируем следующую монету через случайный интервал
+            setTimeout(generateFallingCoin, Math.random() * 800 + 400);
+        }
+        
+        // Завершение мини-игры
+        function endMinigame() {
+            minigameActive = false;
+            clearInterval(minigameInterval);
+            minigameContainer.style.display = 'none';
+            
+            // Начисляем награду
+            if (minigameScore > 0) {
+                gameData.balance += minigameScore;
+                gameData.lastDailyChallenge = Date.now();
+                updateUI();
+                saveGameData();
+                tg.showAlert(`Челлендж завершен! Вы заработали ${minigameScore} токенов.`);
+            }
+        }
+        
+        // Проверка, что две даты - один и тот же день
+        function isSameDay(date1, date2) {
+            return date1.getFullYear() === date2.getFullYear() &&
+                   date1.getMonth() === date2.getMonth() &&
+                   date1.getDate() === date2.getDate();
+        }
+        
+        // Обновление интерфейса
+        function updateUI() {
+            balanceElement.textContent = gameData.balance;
+            offlineCoinsElement.textContent = gameData.offlineCoins;
+            friendsCount.textContent = gameData.referrals.count;
+            referralEarnings.textContent = gameData.referrals.earnings;
+            
+            if (gameData.autoclicker) {
+                autoclickerStatus.textContent = 'Активен';
+                autoclickerStatus.style.color = '#4CAF50';
+                buyAutoclickerBtn.disabled = true;
+                buyAutoclickerBtn.textContent = 'Уже куплено';
+                
+                if (gameData.offlineCoins > 0) {
+                    collectBtn.style.display = 'block';
+                    collectBtn.textContent = `Собрать ${gameData.offlineCoins} токенов`;
+                }
+            } else {
+                autoclickerStatus.textContent = 'Неактивен';
+                autoclickerStatus.style.color = '#ff5555';
+                buyAutoclickerBtn.disabled = gameData.balance < 2500;
+            }
+            
+            // Обновление списка друзей
+            updateFriendsList();
+        }
+        
+        // Обновление списка друзей
+        function updateFriendsList() {
+            if (gameData.referrals.friends.length > 0) {
+                noFriends.style.display = 'none';
+                friendsList.innerHTML = '';
+                
+                gameData.referrals.friends.forEach(friend => {
+                    const friendItem = document.createElement('div');
+                    friendItem.className = 'friend-item';
+                    
+                    friendItem.innerHTML = `
+                        <img src="${friend.photo_url || 'default-avatar.png'}" class="friend-avatar" alt="Аватар">
+                        <div class="friend-info">
+                            <div class="friend-name">${friend.first_name || 'Друг'}</div>
+                            <div class="friend-date">${new Date(friend.date).toLocaleDateString()}</div>
+                        </div>
+                        <div class="friend-bonus">+${friend.bonus}</div>
+                    `;
+                    
+                    friendsList.appendChild(friendItem);
+                });
+            } else {
+                noFriends.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>
